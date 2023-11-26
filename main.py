@@ -1,46 +1,26 @@
 import langchain_helper as lch
 import streamlit as st
+import textwrap
 
-st.title("Pets name generator")
+st.title("Youtube Assistant")
 
-animal_type = st.sidebar.selectbox("What is your pet?", ("Dog", "Cat", "Hamster", "Rat", "Snake", "Lizard", "Cow"))
+with st.sidebar:
+  with st.form(key='my_form'):
+    youtube_url = st.sidebar.text_area(
+      label="What is the youtube video url",
+      max_chars=100     
+    )
+    query = st.sidebar.text_area(
+      label="Ask me question about the video",
+      max_chars=50,
+      key="query"
+    )
 
-print(animal_type)
-
-if animal_type == "Dog":
-    pet_color = st.sidebar.text_area(
-    label="What color is your dog?",
-    max_chars=15
-)
+    submit_button = st.form_submit_button(label="Submit")
     
-    if animal_type == "Cat":
-      pet_color = st.sidebar.text_area(
-    label="What color is your cat?",
-    max_chars=15
-    )
-
-if animal_type == "Hamster":
-  pet_color = st.sidebar.text_area(
-    label="What color is your hamster?",
-    max_chars = 15
-    )
-
-if animal_type == "Rat":
-  pet_color = st.sidebar.text_area(label="What color is your rat?", max_chars = 25)
-
-if animal_type == "Snake":
-  pet_color = st.sidebar.text_area(label="What color is your snake?", max_chars = 25)
-
-if animal_type == "Lizard":
-  pet_color = st.sidebar.text_area(
-    label="What color is your lizard?",
-    max_chars = 25
-    )
-
-if animal_type == "Cow":
-  pet_color = st.sidebar.text_area(label="What color is your cow?", max_chars = 25)
- 
-  
-if pet_color:
-    response = lch.generate_pet_names(animal_type, pet_color)
-    st.text(response['pet_name'])
+    if query and youtube_url:
+      db = lch.create_vector_db_from_youtube_url(youtube_url)
+      response, docs = lch.get_response_from_query(db, query)
+      
+      st.subheader("Answers:")
+      st.text(textwrap.fill(response, width=85))
